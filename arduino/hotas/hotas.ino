@@ -1,92 +1,139 @@
 /*
-  Debounce
 
-  Each time the input pin goes from LOW to HIGH (e.g. because of a push-button
-  press), the output pin is toggled from LOW to HIGH or HIGH to LOW. There's a
-  minimum delay between toggles to debounce the circuit (i.e. to ignore noise).
+  HOTAS
 
   The circuit:
-  - LED attached from pin 13 to ground
-  - pushbutton attached from pin 2 to +5V
-  - 10 kilohm resistor attached from pin 2 to ground
-
-  - Note: On most Arduino boards, there is already an LED on the board connected
-    to pin 13, so you don't need any extra components for this example.
+  - LED attached from pin 13 to ground, with 220 ohm resistor
+  - pushbutton attached from pin to +5V
+  - 22 kilohm resistor attached from pin to ground
+  - potentiometer(s) have
+    - 1 connected to +5V
+    - 2    ''        GND
+    - 3 analog input pin
 
   Created 16.06.2024
 
   Used resources:
   http://www.arduino.cc/en/Tutorial/Debounce
+  https://docs.arduino.cc/built-in-examples/analog/AnalogInput/
 */
 
-// constants won't change. They're used here to set pin numbers:
-const int buttonPin = 2;    // the number of the pushbutton pin
-const int ledPin = 13;      // the number of the LED pin
-const int sensorPin = A0;    // select the input pin for the potentiometer
 
-// Variables will change:
-int ledState = HIGH;         // the current state of the output pin
-int buttonState;             // the current reading from the input pin
-int lastButtonState = LOW;   // the previous reading from the input pin
-int sensorValue = 0;         // variable to store the value coming from the sensor
-int lastSensorValue = 0;         // variable to store the value coming from the sensor
 
-// the following variables are unsigned longs because the time, measured in
-// milliseconds, will quickly become a bigger number than can be stored in an int.
-unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
-unsigned long debounceDelay = 10;    // the debounce time; increase if the output flickers
+//// START OF CONFIGURATION ////
+
+// Edit this portion to match your hardware
+
+// The number of inputs of each type:
+// Remember to update the input arrays with correct input pin IDs.
+const int btns = 1;                 // Number of buttons
+const int alogs = 1;                // Number of analog inputs
+
+// I/O pin ID numbers:
+const int btnPin[btns] = { 2 };     // Array of button pins: Define the digital input pins here
+const int analogPin[alogs] = { A0 };    // Array of analog pins: Define the analog input pins here
+const int ledPin = 13;              // the number of the LED pin (13 is the internal LED)
+
+// Debounse
+unsigned long debounceDelay = 10;   // the debounce time; increase if the output flickers
+
+//// END OF CONFIGURATION ////
+
+
+
+// LED state information
+int ledState = HIGH;            // the current state of the output pins
+
+// Button state information
+int btnValue[btns] = { };       // the current reading from the input pins
+int btnPrevious[btns] = { };    // the previous reading from the input pins
+int btnTempValue[btns] = { };   // temp buffer for values
+
+// Analog state information
+int analogValue[alogs] = { };   // the current reading from the analog pins
+int analogPrevious[alogs] = { };    // the previous reading from the input pins
+
+// milliseconds, will quickly become a bigger number than can be stored in an int
+unsigned long lastDebounceTime[btns] = { };  // the last time the output pin was toggled
+
+
+// Sets up all buttons pins as inputs
+void setupButtons() {
+  for ( int i = 0; i < btns ; i++ ) {
+    pinMode(btnPin[i], INPUT);
+  }
+}
+
+
+// Formats and sends a serial message
+void sendValue(String name, int pin, int value) {
+  // Format message
+  String msg = name + String(pin) + ":" + value;
+  Serial.println(msg);
+}
+
+
+// Sets up all buttons pins as inputs
+void setupLEDs() {
+  pinMode(ledPin, OUTPUT);
+  digitalWrite(ledPin, ledState);
+}
+
+
+// Read analog inputs and update the array
+void readAnalogs() {
+  for ( int i = 0; i < alogs ; i++ ) {
+    analogValue[i] = analogRead(i);
+    if (analogValue[i] != analogPrevious[i]) {
+      sendValue("analog", i, analogValue[i]);
+    }
+    analogPrevious[i] = analogValue[i];
+  }
+}
+
+
+void setLEDs() {
+  // set the LED:
+  digitalWrite(ledPin, ledState);
+}
+
+
+// Read the digital inputs and update the arrays
+// uses debounse
+void readBtn() {
+  for ( int i = 0; i < btns ; i++ ) {
+    btnTempValue[i] = digitalRead(btnPin[i]);
+
+    // If a change is seen on input
+    if (btnTempValue[i] != btnPrevious[i]) {
+      // reset the debouncing timer
+      lastDebounceTime[i] = millis();
+    }
+
+    // If the debounse timeout has passed
+    if ((millis() - lastDebounceTime[i]) > debounceDelay) {
+
+      if (btnTempValue[i] != btnValue[i]) {
+        // Set button value
+        btnValue[i] = btnTempValue[i];
+
+        // Send button event on serial
+        sendValue("btn", i, btnValue[i]);
+      }
+    }
+    btnPrevious[i] = btnTempValue[i];
+  }
+}
+
 
 void setup() {
-  pinMode(buttonPin, INPUT);
-  pinMode(ledPin, OUTPUT);
 
-  // set initial LED state
-  digitalWrite(ledPin, ledState);
-
-  // initialize serial communication at 9600 bits per second:
-  Serial.begin(9600);
+  setupButtons();
+  setupLEDs();
+  Serial.begin(9600);   // initialize serial comm at 9600 bits per second
 }
 
 void loop() {
-
-
-  sensorValue = analogRead(sensorPin);
-
-  // read the state of the switch into a local variable:
-  int reading = digitalRead(buttonPin);
-
-  // check to see if you just pressed the button
-  // (i.e. the input went from LOW to HIGH), and you've waited long enough
-  // since the last press to ignore any noise:
-
-  // If the switch changed, due to noise or pressing:
-  if (reading != lastButtonState) {
-    // reset the debouncing timer
-    lastDebounceTime = millis();
-  }
-
-  if ((millis() - lastDebounceTime) > debounceDelay) {
-    // whatever the reading is at, it's been there for longer than the debounce
-    // delay, so take it as the actual current state:
-
-    // if the button state has changed:
-    if (reading != buttonState) {
-      buttonState = reading;
-
-      // only toggle the LED if the new button state is HIGH
-      if (buttonState == HIGH) {
-        ledState = !ledState;
-        Serial.println("PushedBTN01");
-      }
-    }
-  }
-  if (sensorValue != lastSensorValue) {
-    Serial.println(sensorValue);
-  }
-
-  // set the LED:
-  digitalWrite(ledPin, ledState);
-
-  // save the reading. Next time through the loop, it'll be the lastButtonState:
-  lastButtonState = reading;
+  readAnalogs();
+  readBtn();
 }
