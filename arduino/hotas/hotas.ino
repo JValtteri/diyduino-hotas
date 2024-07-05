@@ -26,35 +26,40 @@
 
 // The number of inputs of each type:
 // Remember to update the input arrays with correct input pin IDs.
-const int btns = 1;                 // Number of buttons
+const int btns = 7;                 // Number of buttons
 const int alogs = 1;                // Number of analog inputs
 
 // I/O pin ID numbers:
-const int btnPin[btns] = { 2 };     // Array of button pins: Define the digital input pins here
+const int btnPin[btns] = { 2, 3, 4, 5, 6, 7, 8 };     // Array of button pins: Define the digital input pins here
 const int analogPin[alogs] = { A0 };    // Array of analog pins: Define the analog input pins here
 const int ledPin = 13;              // the number of the LED pin (13 is the internal LED)
 
 // Debounse
 unsigned long debounceDelay = 10;   // the debounce time; increase if the output flickers
 
+// Deadzone
+const int analogDeadzone = 2;
+
 //// END OF CONFIGURATION ////
 
 
 
 // LED state information
-int ledState = HIGH;            // the current state of the output pins
+int ledState = HIGH;              // the current state of the output pins
+int ledFlash = 20;                // length of LED flash
 
 // Button state information
-int btnValue[btns] = { };       // the current reading from the input pins
-int btnPrevious[btns] = { };    // the previous reading from the input pins
-int btnTempValue[btns] = { };   // temp buffer for values
+int btnValue[btns] = { };         // the current reading from the input pins
+int btnPrevious[btns] = { };      // the previous reading from the input pins
+int btnTempValue[btns] = { };     // temp buffer for values
 
 // Analog state information
-int analogValue[alogs] = { };   // the current reading from the analog pins
-int analogPrevious[alogs] = { };    // the previous reading from the input pins
+int analogValue[alogs] = { };     // the current reading from the analog pins
+int analogPrevious[alogs] = { };  // the previous reading from the input pins
 
 // milliseconds, will quickly become a bigger number than can be stored in an int
 unsigned long lastDebounceTime[btns] = { };  // the last time the output pin was toggled
+unsigned long ledTime;  // the last time the output pin was toggled
 
 
 // Sets up all buttons pins as inputs
@@ -84,17 +89,33 @@ void setupLEDs() {
 void readAnalogs() {
   for ( int i = 0; i < alogs ; i++ ) {
     analogValue[i] = analogRead(i);
-    if (analogValue[i] != analogPrevious[i]) {
+    if (abs(analogValue[i] - analogPrevious[i]) > analogDeadzone) {
       sendValue("analog", i, analogValue[i]);
+      analogPrevious[i] = analogValue[i];
     }
-    analogPrevious[i] = analogValue[i];
   }
 }
 
 
-void setLEDs() {
+// Sets the state of ilumination LEDs
+void setLEDs(int state) {
+  // Do PWM magic
   // set the LED:
-  digitalWrite(ledPin, ledState);
+  digitalWrite(ledPin, state);
+}
+
+
+// Does a signal LED flash
+// true = turn on
+// false = turn off if timeout
+void flashLED(int state = LOW) {
+  if (state == HIGH) {
+    digitalWrite(ledPin, state);
+    ledTime = millis();
+  }
+  else if ((millis() - ledTime) > ledFlash) {
+    digitalWrite(ledPin, LOW);
+  }
 }
 
 
@@ -119,6 +140,7 @@ void readBtn() {
 
         // Send button event on serial
         sendValue("btn", i, btnValue[i]);
+        flashLED(HIGH);
       }
     }
     btnPrevious[i] = btnTempValue[i];
@@ -136,4 +158,5 @@ void setup() {
 void loop() {
   readAnalogs();
   readBtn();
+  flashLED();
 }
