@@ -46,7 +46,7 @@ const int analogDeadzone = 2;
 
 // LED state information
 int ledState = HIGH;              // the current state of the output pins
-int ledFlash = 20;                // length of LED flash
+int ledFlash = 2;                // length of LED flash
 
 // Button state information
 int btnValue[btns] = { };         // the current reading from the input pins
