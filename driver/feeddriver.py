@@ -7,15 +7,39 @@
 #import os, sys
 import serial
 import time
+import pyvjoy
 
 ##### Configuration #####
 
+virtual_device_no = 1 # Corresponding vJoy device ID
 #port = '/dev/ttyUSB0'
 port = 'COM4'
 rate = 9600
+joy_multip = 32 # from 1024 to 0x8000 value scale
 
 #########################
 
+j = pyvjoy.VJoyDevice(virtual_device_no)
+
+def decode_event(event):
+    sevent = event.decode()
+    sevent = sevent[1:] # Drop the first character
+    sevent = sevent.strip('\r\n')
+    if sevent == '':  # Ignore empty input
+        return -1, -1
+    try:
+        name, value = sevent.split(':')
+    except Exception as e:
+        print(sevent.split(':'))
+        raise e
+    return int(name)+1, int(value)
+
+def button_update(name, value):
+    j.set_button(name, value)
+
+def joy_update(name, value):
+    j.set_axis(pyvjoy.HID_USAGE_X, hex(value * joy_multip))
+    # j.set_axis(pyvjoy.HID_USAGE_X, 0x1)
 
 
 while True:
@@ -33,6 +57,14 @@ try:
         line = ser.readline()
         if len(line) != 0:
             print(line)
+            name, value = decode_event(line)
+            if line[0] == 65: # ASCII 'A'
+                print(f"Analog:{name} Value:{value}")
+                joy_update(name, value)
+            elif line[0] == 68: # ASCII 'D'
+                print(f"Digital:{name} Value:{value}")
+                button_update(name, value)
+
 except KeyboardInterrupt as e:
     ser.close()
     print("Connection closed")
