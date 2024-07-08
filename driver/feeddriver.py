@@ -26,19 +26,19 @@ def decode_event(event):
     sevent = sevent[1:] # Drop the first character
     sevent = sevent.strip('\r\n')
     if sevent == '':  # Ignore empty input
-        return -1, -1
+        return -1, -1   # Using this value will result in a crash in vJoy
     try:
         name, value = sevent.split(':')
     except Exception as e:
         print(sevent.split(':'))
         raise e
-    return int(name)+1, int(value)
+    return int(name)+1, int(value)  # name is offset by one: button index starts at 1 not zero
 
 def button_update(name, value):
     j.set_button(name, value)
 
 def joy_update(name, value):
-    j.set_axis(pyvjoy.HID_USAGE_X, hex(value * joy_multip))
+    j.set_axis(pyvjoy.HID_USAGE_X, value * joy_multip)
     # j.set_axis(pyvjoy.HID_USAGE_X, 0x1)
 
 
