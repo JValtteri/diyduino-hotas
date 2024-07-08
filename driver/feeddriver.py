@@ -16,6 +16,8 @@ rate = 9600
 
 #########################
 
+
+
 while True:
     try:
         ser = serial.Serial(port, rate, timeout = 5)
@@ -34,3 +36,6 @@ try:
 except KeyboardInterrupt as e:
     ser.close()
     print("Connection closed")
+except serial.SerialException as e:
+    ser.close()
+    print("Connection closed by device")
