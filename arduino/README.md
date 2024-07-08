@@ -8,7 +8,7 @@ If you have an Arduino Leonardo or Pro Micro, you don't need this project. These
 
 The controller is the software flashed to the Arduino. It supports analog and digital inputs. It is designed to work with any Arduino board.
 
-This program sends the inputs as serial messages over USB. A separate "[driver](driver/README.md)" is required on the PC to read the inputs and translate them in to generic HMI device inputs.
+This program sends the inputs as serial messages over USB. A separate [driver](https://github.com/JValtteri/diyduino-hotas/blob/main/driver/README.md) is required on the PC to read the inputs and translate them in to generic HMI device inputs.
 
 ---
 
