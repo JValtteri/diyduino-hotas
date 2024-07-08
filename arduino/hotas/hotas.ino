@@ -90,7 +90,7 @@ void readAnalogs() {
   for ( int i = 0; i < alogs ; i++ ) {
     analogValue[i] = analogRead(i);
     if (abs(analogValue[i] - analogPrevious[i]) > analogDeadzone) {
-      sendValue("analog", i, analogValue[i]);
+      sendValue("A", i, analogValue[i]);
       analogPrevious[i] = analogValue[i];
     }
   }
@@ -139,7 +139,7 @@ void readBtn() {
         btnValue[i] = btnTempValue[i];
 
         // Send button event on serial
-        sendValue("btn", i, btnValue[i]);
+        sendValue("D", i, btnValue[i]);
         flashLED(HIGH);
       }
     }
