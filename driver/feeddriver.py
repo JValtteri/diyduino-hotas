@@ -8,9 +8,14 @@
 import serial
 import time
 
+##### Configuration #####
+
 #port = '/dev/ttyUSB0'
 port = 'COM4'
 rate = 9600
+
+#########################
+
 while True:
     try:
         ser = serial.Serial(port, rate, timeout = 5)
@@ -21,7 +26,11 @@ while True:
 
 # listen for the input, exit if nothing received in timeout period
 print("Listening...")
-while True:
-    line = ser.readline()
-    if len(line) != 0:
-        print(line)
+try:
+    while True:
+        line = ser.readline()
+        if len(line) != 0:
+            print(line)
+except KeyboardInterrupt as e:
+    ser.close()
+    print("Connection closed")
