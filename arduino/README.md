@@ -23,8 +23,8 @@ The Arduino code has constants that you can modify to your needs
 | -- | -- | -- |
 | const int btns | 7 | Number of buttons |
 | const int alogs | 2 | Number of analog inputs |
-| const int btnPin[btns] | = { 2, 3, 4, ... } | Array of button pins: Define the digital input pins here |
-| const int analogPin[alogs] | = { A0, A1 } | Array of analog pins: Define the analog input pins here |
+| const int btnPin[btns] | { 2, 3, 4, ... } | Array of button pins: Define the digital input pins here |
+| const int analogPin[alogs] | { A0, A1 } | Array of analog pins: Define the analog input pins here |
 | const int ledPin | 13 | the number of the LED pin (13 is the internal LED) |
 | unsigned long debounceDelay | 10 | the debounce time; increase if the output flickers |
 | const int analogDeadzone | 2 |
