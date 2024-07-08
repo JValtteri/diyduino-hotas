@@ -4,14 +4,14 @@ To make the device work with any Arduino board, a driver is required. vJoy is us
 
 ## Setup
 
-##### Install vJoy
+### Install vJoy
 [Download from SourceForge](https://sourceforge.net/projects/vjoystick/) ([source](https://github.com/shauleiz/vJoy))
 
 Install at least
 - the configuration tool and
 - the monitor (useful for troubleshooting)
 
-##### Create a virtual joystick
+### Create a virtual joystick
 
 - Numberd tabs correspond to virtual device IDs.
 - Put a check mark on each axis you need and the number of buttons you have.
@@ -19,14 +19,14 @@ Install at least
 - Disable force feedback
 - Click apply
 
-##### Make sure you have an up to date Python version 3.6.7 or newer.
+### Make sure you have an up to date Python version 3.6.7 or newer.
 
 [Download Python](https://www.python.org/downloads/) (Windows)
 
-##### Install requirements
+### Install requirements
 ```pip install -r requirements.txt```
 
-##### Configure feeddriver
+### Configure feeddriver
 
 - Open feeddriver.py in an editor.
 - `virtual_device_no` should correspond with the tab number in vJoyConf program.
@@ -36,7 +36,7 @@ Install at least
   - Arduino by default uses 10 bit ADC, giving 1024 increments for axis. To scale this to vJoy, we multiply it by 32 to get 32768 (0x8000).
 - `joy_select` for joysticks should be zero. Axis will be named starting from X. The number corresponds to how many axis names are ignored, starting from X. For two engine HOTAS we could use 5, to get axis named as SL0 and SL1
 
-##### Verify axis are working
+### Verify axis are working
 
 - Connect your Arduino
 - Start feeddriver.py
