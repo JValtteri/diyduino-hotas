@@ -10,6 +10,8 @@ The controller is the software flashed to the Arduino. It supports analog and di
 
 This program sends the inputs as serial messages over USB. A separate [driver](https://github.com/JValtteri/diyduino-hotas/blob/main/driver/README.md) is required on the PC to read the inputs and translate them in to generic HMI device inputs.
 
+Supports MCP23017 expansion chips for added digital IO
+
 ## Customize to your needs
 
 The Arduino code has constants that you can modify to your needs
@@ -20,16 +22,23 @@ The Arduino code has constants that you can modify to your needs
 // Remember to update the input arrays with correct input pin IDs.
 
 | Name | default | Description |
-| -- | -- | -- |
-| const int btns | 7 | Number of buttons |
-| const int alogs | 2 | Number of analog inputs |
-| const int btnPin[btns] | { 2, 3, 4, ... } | Array of button pins: Define the digital input pins here |
-| const int analogPin[alogs] | { A0, A1 } | Array of analog pins: Define the analog input pins here |
-| const int ledPin | 13 | the number of the LED pin (13 is the internal LED) |
-| unsigned long debounceDelay | 10 | the debounce time; increase if the output flickers |
-| const int analogDeadzone | 2 |
+| -- | :--: | -- |
+| `const int btns` | 7 | Number of buttons |
+| `const int alogs` | 2 | Number of analog inputs |
+| `const int btnPin[btns]` | { 2, 3, 4, ... } | Array of button pins: Define the digital input pins here |
+| `const int analogPin[alogs]` | { A0, A1 } | Array of analog pins: Define the analog input pins here |
+| `const int ledPin` | 13 | the number of the LED pin (13 is the internal LED) |
+| `unsigned long debounceDelay` | 10 | the debounce time; increase if the output flickers |
+| `const int analogDeadzone` | 2 |  |
+| `const bool i2c` | true | enables MCP23017 support. Uses A4 and A5 for I2C communication |
 
 ---
+
+## Dependencies
+
+- Adafruit_MCP23X17 (install through Ardiono IDE: Scetch > Include Library > Manage Libraries)
+
+If you don't need or want the MCP23X17 support, you can comment out the import (on lines 30) and name definition on line 32). Also set the const `i2c` to `false`.
 
 ## Planned Extra features
 - Add support for ilumination LEDs
