@@ -40,12 +40,12 @@ const bool i2c = true;              // enable I2C if you have an MCP23X17 connec
 // The number of inputs of each type:
 // Remember to update the input arrays with correct input pin IDs.
 const int btns = 11;                // Number of buttons
-const int alogs = 1;                // Number of analog inputs
+const int alogs = 2;                // Number of analog inputs
 const int mcps = 16;
 
 // I/O pin ID numbers:
 const int btnPin[btns] = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };     // Array of button pins: Define the digital input pins here
-const int analogPin[alogs] = { A0 };    // Array of analog pins: Define the analog input pins here
+const int analogPin[alogs] = { A2, A3 };    // Array of analog pins: Define the analog input pins here
 const int ledPin = 13;              // the number of the LED pin (13 is the internal LED)
 const int mcpBtnPin[mcps] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 
@@ -53,7 +53,7 @@ const int mcpBtnPin[mcps] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 
 unsigned long debounceDelay = 10;   // the debounce time; increase if the output flickers
 
 // Deadzone
-const int analogDeadzone = 2;
+const int analogDeadzone = 3;
 
 //// END OF CONFIGURATION ////
 
@@ -115,7 +115,7 @@ void setupLEDs() {
 // Read analog inputs and update the array
 void readAnalogs() {
   for ( int i = 0; i < alogs ; i++ ) {
-    analogValue[i] = analogRead(i);
+    analogValue[i] = analogRead(analogPin[i]);
     if (abs(analogValue[i] - analogPrevious[i]) > analogDeadzone) {
       sendValue("A", i, analogValue[i]);
       analogPrevious[i] = analogValue[i];
@@ -166,7 +166,7 @@ void readBtn() {
         btnValue[i] = btnTempValue[i];
 
         // Send button event on serial
-        sendValue("D", i, btnValue[i]);
+        sendValue("D", i, !btnValue[i]);
         flashLED(HIGH);
       }
     }
@@ -195,7 +195,7 @@ void readMCP() {
         mcpBtnValue[i] = mcpBtnTempValue[i];
 
         // Send button event on serial
-        sendValue("MCP", i, mcpBtnValue[i]);
+        sendValue("MCP", i, !mcpBtnValue[i]);
         flashLED(HIGH);
       }
     }
