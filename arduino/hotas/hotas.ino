@@ -228,7 +228,7 @@ void readMCP() {
           mcpBtnValue[chip][i] = mcpBtnTempValue[chip][i];
 
           // Send button event on serial
-          sendValue("MCP"+String(chipAddr[chip])+".", i, !mcpBtnValue[chip][i]);
+          sendValue("M"+String(chipAddr[chip])+".", i, !mcpBtnValue[chip][i]);
           flashLED(HIGH);
         }
       }

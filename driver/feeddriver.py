@@ -13,10 +13,13 @@ import pyvjoy
 
 virtual_device_no = 1 # Corresponding vJoy device ID
 #port = '/dev/ttyUSB0'
-port = 'COM4'
+port = 'COM3'
 rate = 9600
-joy_multip = 32 # from 1024 to 0x8000 value scale
-joy_select = 5 # +5 ignores first 5 axis names
+joy_multip = 32    # from 1024 to 0x8000 value scale
+joy_select = 5     # +5 ignores first 5 axis names
+digital_pins = 11  # number of digital pins used on arduino
+mcp_size = 16      # number of MCP IO pins per mcp chip
+first_mcp_id = 32  # I2C address id of first MCP chip
 
 #########################
 
@@ -39,15 +42,22 @@ j = pyvjoy.VJoyDevice(virtual_device_no)
 
 def decode_event(event):
     sevent = event.decode()
+    id = sevent[0]
+    if id == "#":
+        return -1, -1
     sevent = sevent[1:] # Drop the first character
     sevent = sevent.strip('\r\n')
-    if sevent == '':  # Ignore empty input
+    if sevent == '':  # Ignore empty input and comments
         return -1, -1   # Using this value will result in a crash in vJoy
     try:
         name, value = sevent.split(':')
     except Exception as e:
         print(sevent.split(':'))
         raise e
+    if id == "M":
+        chip, pin = name.split('.')
+        name = (int(chip) - first_mcp_id) * mcp_size + digital_pins + int(pin)  # Make the button id run continuously through native and expansion pins
+
     return int(name)+1, int(value)  # name is offset by one: button index starts at 1 not zero
 
 def button_update(name, value):
@@ -80,6 +90,9 @@ def main():
                     joy_update(name, value)
                 elif line[0] == 68: # ASCII 'D'
                     print(f"Digital:{name} Value:{value}")
+                    button_update(name, value)
+                elif line[0] == 77: # ASCII 'M'
+                    print(f"MCP:{name} Value:{value}")
                     button_update(name, value)
 
     except KeyboardInterrupt as e:
