@@ -13,13 +13,14 @@ import pyvjoy
 
 virtual_device_no = 1 # Corresponding vJoy device ID
 #port = '/dev/ttyUSB0'
-port = 'COM3'
+ports = ['COM3', 'COM4', 'COM5', 'COM6']
 rate = 9600
 joy_multip = 32    # from 1024 to 0x8000 value scale
 joy_select = 5     # +5 ignores first 5 axis names
 digital_pins = 11  # number of digital pins used on arduino
 mcp_size = 16      # number of MCP IO pins per mcp chip
 first_mcp_id = 32  # I2C address id of first MCP chip
+double_switches = [12,13,14,15,16,17,11,10,36,37]
 
 #########################
 
@@ -61,21 +62,29 @@ def decode_event(event):
     return int(name)+1, int(value)  # name is offset by one: button index starts at 1 not zero
 
 def button_update(name, value):
-    j.set_button(name, value)
+    if int(name) in double_switches:     # Simulate a short click
+        j.set_button(name, 1)
+        j.set_button(name, 0)
+    else:
+        j.set_button(name, value)
 
 def joy_update(name, value):
     this_axis = axis[name+joy_select]                        # Maps input axis to virtual axis name
     j.set_axis(this_axis, (value*joy_multip))
 
 def main():
-    print(f"Waiting for device '{port}' to connect...")
-    while True:
-        try:
-            ser = serial.Serial(port, rate, timeout = 5)
-            print(ser.name)
-            break
-        except serial.SerialException as e:
-            time.sleep(1)
+    searching = True
+    while searching:
+        for port in ports:
+            print(f"Waiting for device '{port}' to connect...")
+            try:
+                ser = serial.Serial(port, rate, timeout = 5)
+                print(ser.name)
+                searching = False
+                break
+            except serial.SerialException as e:
+                pass
+                time.sleep(1)
 
     # listen for the input, exit if nothing received in timeout period
     print("Listening...")
@@ -87,12 +96,12 @@ def main():
                 name, value = decode_event(line)
                 if line[0] == 65: # ASCII 'A'
                     print(f"Analog:{name} Value:{value}")
-                    joy_update(name, value)
+                    joy_update(name, int(value))
                 elif line[0] == 68: # ASCII 'D'
                     print(f"Digital:{name} Value:{value}")
                     button_update(name, value)
                 elif line[0] == 77: # ASCII 'M'
-                    print(f"MCP:{name} Value:{value}")
+                    print(f"Digital:{name} Value:{value}, (mcp)")
                     button_update(name, value)
 
     except KeyboardInterrupt as e:
