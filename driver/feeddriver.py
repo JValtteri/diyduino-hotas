@@ -21,9 +21,20 @@ digital_pins = 11  # number of digital pins used on arduino
 mcp_size = 16      # number of MCP IO pins per mcp chip
 first_mcp_id = 32  # I2C address id of first MCP chip
 double_switches = [12,13,14,15,16,17,11,10,36,37]
+combo_switches = [
+    {
+        "key": 7,
+        "modifier":8,
+    }
+] # key works normally, but modifier is triggered only when both are pressed
 
 #########################
 
+# build switch state memory
+combo_memory = dict()
+for combo in combo_switches:
+    combo_memory[combo["key"]] = 0
+    combo_memory[combo["modifier"]] = 0
 
 axis = [
     pyvjoy.HID_USAGE_X,
@@ -41,7 +52,22 @@ axis = [
 
 j = pyvjoy.VJoyDevice(virtual_device_no)
 
-def decode_event(event):
+# NOTE! Undefined bahavior, if the "key" is depressed, when "modifier" changes
+def combo_key(pin: int, value: int) -> tuple[int, int]:
+    combo_memory[pin] = value
+    for combo in combo_switches:
+        if pin in [combo["key"], combo["modifier"]]:
+            if combo_memory[combo["key"]] == combo_memory[combo["modifier"]] and combo_memory[combo["key"]] == 1:
+                return combo["modifier"], 1
+            elif combo_memory[combo["key"]] == 1:
+                return combo["key"], 1
+            elif combo_memory[combo["modifier"]] == 1:
+                return combo["modifier"], 0
+            else:
+                return combo["key"], 0
+    return -1, -1
+
+def decode_event(event: str) -> tuple[int, int]:
     sevent = event.decode()
     id = sevent[0]
     if id == "#":
@@ -57,18 +83,21 @@ def decode_event(event):
         raise e
     if id == "M":
         chip, pin = name.split('.')
-        name = (int(chip) - first_mcp_id) * mcp_size + digital_pins + int(pin)  # Make the button id run continuously through native and expansion pins
+        name = (int(chip) - first_mcp_id) * mcp_size + digital_pins + int(pin)# Make the button id run continuously through native and expansion pins
 
     return int(name)+1, int(value)  # name is offset by one: button index starts at 1 not zero
 
-def button_update(name, value):
+def button_update(name: int, value: int):
     if int(name) in double_switches:     # Simulate a short click
         j.set_button(name, 1)
         j.set_button(name, 0)
+    elif int(name) in combo_memory:
+        name, value = combo_key(int(name), int(value))
+        j.set_button(int(name), value)
     else:
         j.set_button(name, value)
 
-def joy_update(name, value):
+def joy_update(name: int, value: int):
     this_axis = axis[name+joy_select]                        # Maps input axis to virtual axis name
     j.set_axis(this_axis, (value*joy_multip))
 
@@ -84,7 +113,7 @@ def main():
                 break
             except serial.SerialException as e:
                 pass
-                time.sleep(1)
+                time.sleep(0.1)
 
     # listen for the input, exit if nothing received in timeout period
     print("Listening...")
