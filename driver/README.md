@@ -30,13 +30,19 @@ Install at least
 
 - Open feeddriver.py in an editor.
 
-| Variable | Description |
-| :--: | -- |
-| `virtual_device_no` | correspond with the virtual device (tab number) in [**vJoyConf**](https://sourceforge.net/projects/vjoystick/) |
-| `port` | List of `COM` ports to try, when connecting to Arduino. Try adding ports, if you are unable to connect |
-| `rate` | leave at default, unless you know what you're doing. |
-| `joy_multip` | (default 32)[^ADC] is used to scale the input to the joystick. |
-| `joy_select` | for joysticks should be zero. Axis will be named starting from X. The number corresponds to how many `axis` names are ignored, starting from X. For two engine HOTAS we could use `5`, to get axis named as SL0 and SL1 |
+| Variable | Default | Description |
+| :--: | :--: | -- |
+| `virtual_device_no` | | correspond with the virtual device (tab number) in [**vJoyConf**](https://sourceforge.net/projects/vjoystick/) |
+| `ports` |  | List of `COM` ports to try, when connecting to Arduino. Try adding ports, if you are unable to connect |
+| `rate` | `9600` | leave at default, unless you know what you're doing. |
+| `joy_multip` | `32`[^ADC] | is used to scale the input to the joystick. |
+| `joy_select` |  | for joysticks should be zero. Axis will be named starting from X. The number corresponds to how many `axis` names are ignored, starting from X. For two engine HOTAS we could use `5`, to get axis named as SL0 and SL1 |
+| `digital_pins` | `11` | The total number of digital IO pins used on Arduino itself. This is used to set virtual button numbers correctly. A too small number will cause issues. |
+| `mcp_size` | `16` | Must match the number of IO pins on the used MCP chip. This is used to set the virtual button numbers correctly. For MCP23017, the number is 16 |
+| `first_mcp_id` | `32` | I2C address if of the first MCP chip. Used to parse the Arduino input events |
+| `double_switches` | | List of virtual button IDs numbers, whose switch should trigger an event on both rising and falling edge (flip switch) |
+| `combo_switches` | | List of two button chords where the `key` button works normally, but if pressed while `modifier` is depressed, the evemt is `modifier` instead of `key` |
+
 
 [^ADC]: Arduino by default uses 10 bit ADC, giving 1024 increments for axis. To scale this to vJoy, we multiply it by 32 to get 32768 (0x8000).
 
