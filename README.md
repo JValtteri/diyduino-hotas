@@ -27,6 +27,8 @@ The **controller** is the software flashed to the **Arduino,** while the **drive
 
 ## Example Circuit with MCP23017 expansion
 
+![Example circuit.png](pictures/Circuit.png)
+
 #### Arduino
 
 Analog axis are connected to **A0-A7**[^1]
@@ -53,7 +55,7 @@ Use [Adafruit MCP23017 Library](https://github.com/adafruit/Adafruit-MCP23017-Ar
 - GPA0-GPA7 (0-7) are digital input
 - GPB0-GPB7 (8-15) are digital input
 
-![Example circuit.png](pictures/Circuit.png)   ![MCP23017.png](pictures/MCP23017.png)
+![MCP23017.png](pictures/MCP23017.png)
 
 
 [^1]: **Note!** If you need expansion chips, **A4** and **A5** are used for **I2C** communication
