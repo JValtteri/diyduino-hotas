@@ -4,7 +4,7 @@ A project to create a DIY HOTAS throttle controller from any Arduino or Arduino 
 
 If you have an Arduino Leonardo or Pro Micro, you don't need this project. These boards can act as an input device, without the need for custon drivers.
 
-<img src="pictures/hotas_example.png" alt="hotas example.png" height=400>
+![Hotas Example](pictures/hotas_example.png)
 
 ## Description
 
