@@ -29,24 +29,35 @@ Install at least
 ### Configure feeddriver
 
 - Open feeddriver.py in an editor.
-- `virtual_device_no` should correspond with the tab number in vJoyConf program.
-- `port` should match the USB port you connect your arduino to. It's usually `COM3` or later.
-- `rate` leave at default, unless you know what you're doing.
-- `joy_multip` (default 32) is used to scale the input to the joystick.
-  - Arduino by default uses 10 bit ADC, giving 1024 increments for axis. To scale this to vJoy, we multiply it by 32 to get 32768 (0x8000).
-- `joy_select` for joysticks should be zero. Axis will be named starting from X. The number corresponds to how many axis names are ignored, starting from X. For two engine HOTAS we could use 5, to get axis named as SL0 and SL1
+
+| Variable | Description |
+| :--: | -- |
+| `virtual_device_no` | correspond with the virtual device (tab number) in [**vJoyConf**](https://sourceforge.net/projects/vjoystick/) |
+| `port` | List of `COM` ports to try, when connecting to Arduino. Try adding ports, if you are unable to connect |
+| `rate` | leave at default, unless you know what you're doing. |
+| `joy_multip` | (default 32)[^ADC] is used to scale the input to the joystick. |
+| `joy_select` | for joysticks should be zero. Axis will be named starting from X. The number corresponds to how many `axis` names are ignored, starting from X. For two engine HOTAS we could use `5`, to get axis named as SL0 and SL1 |
+
+[^ADC]: Arduino by default uses 10 bit ADC, giving 1024 increments for axis. To scale this to vJoy, we multiply it by 32 to get 32768 (0x8000).
 
 ### Verify axis are working
 
 - Connect your Arduino
-- Start feeddriver.py
-- Start vJoy Monitor
+- Start `feeddriver.py`
+- Start `vJoy Monitor`
 - Check each axis and button to see they work
+
+###### Note:
+You may need to run feeddriver explicitly with 
+```python feeddriver.py```
+or
+```python3 feeddriver.py```
+depending on what [Python version](#make-sure-you-have-an-up-to-date-python-version-367-or-newer) is the default on your system
 
 ## Run
 
 - Connect your arduino
-- Start feeddriver.py
+- Start `feeddriver.py`
 
 ## Acknowledgements/resources
 

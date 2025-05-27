@@ -9,10 +9,10 @@ If you have an Arduino Leonardo or Pro Micro, you don't need this project. These
 ## Description
 
 This project consists of two parts:
-- [Controller](arduino/README.md) and
-- the [driver](driver/README.md).
+- [Controller](arduino/README.md)
+- [Driver](driver/README.md)
 
-The controller is the software flashed to the Arduino, while the driver is used to communicate with a virtual controller driver [vJoy](https://github.com/shauleiz/vJoy).
+The **controller** is the software flashed to the **Arduino,** while the **driver** is used to communicate with a virtual controller driver [vJoy](https://github.com/shauleiz/vJoy).
 
 ## Requirements
 
