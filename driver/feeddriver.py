@@ -20,7 +20,7 @@ joy_select = 5     # +5 ignores first 5 axis names
 digital_pins = 11  # number of digital pins used on arduino
 mcp_size = 16      # number of MCP IO pins per mcp chip
 first_mcp_id = 32  # I2C address id of first MCP chip
-double_switches = [12,13,14,15,16,17,11,10,36,37]
+double_switches = [5,12,13,14,15,16,17,11,10,36,37]
 combo_switches = [
     {
         "key": 7,
@@ -90,6 +90,7 @@ def decode_event(event: str) -> tuple[int, int]:
 def button_update(name: int, value: int):
     if int(name) in double_switches:     # Simulate a short click
         j.set_button(name, 1)
+        time.sleep(0.1)                  # Give time for click to register
         j.set_button(name, 0)
     elif int(name) in combo_memory:
         name, value = combo_key(int(name), int(value))
